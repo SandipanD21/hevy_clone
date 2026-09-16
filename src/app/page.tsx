@@ -4,7 +4,7 @@ const SCREENS = [
   {
     href: "/exercises",
     title: "Exercise library",
-    phase: "Phase 1",
+    phase: "Live",
     description: "Browse the built-in exercise list and add your own custom exercises.",
   },
   {
@@ -35,9 +35,8 @@ export default function Home() {
           Welcome to your workout tracker
         </h1>
         <p className="mt-2 max-w-xl text-zinc-600">
-          The stack is wired up: Next.js, Tailwind, and a Supabase connection
-          ready for auth and data. Each screen below is a stub — build them
-          out in the order from the roadmap in your{" "}
+          Sign-in and the exercise library are live. The rest are stubs —
+          built out in order from the roadmap in your{" "}
           <span className="font-medium">Hevy Clone — Build Plan</span> doc.
         </p>
       </div>
