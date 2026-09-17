@@ -1,3 +1,5 @@
+import { Hammer } from "lucide-react";
+
 export function PhaseStub({
   title,
   phase,
@@ -10,16 +12,23 @@ export function PhaseStub({
   nextStep: string;
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-8">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-400">
-        {phase} — not built yet
-      </span>
-      <h1 className="mt-2 text-xl font-semibold">{title}</h1>
-      <p className="mt-2 text-zinc-600">{description}</p>
-      <p className="mt-4 text-sm text-zinc-500">
-        <span className="font-medium text-zinc-700">Next step: </span>
-        {nextStep}
-      </p>
+    <div className="flex h-full items-center justify-center">
+      <div className="card max-w-md p-6 text-center">
+        <span className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-canvas text-ink-subtle">
+          <Hammer size={18} aria-hidden="true" />
+        </span>
+        <span className="text-[11px] font-medium tracking-wide text-ink-subtle uppercase">
+          {phase} — not built yet
+        </span>
+        <h1 className="mt-1.5 text-base font-semibold tracking-tight">
+          {title}
+        </h1>
+        <p className="mt-2 text-sm text-ink-muted">{description}</p>
+        <p className="mt-4 border-t border-line pt-4 text-xs text-ink-subtle">
+          <span className="font-medium text-ink-muted">Next step: </span>
+          {nextStep}
+        </p>
+      </div>
     </div>
   );
 }

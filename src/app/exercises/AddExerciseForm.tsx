@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { Plus, X } from "lucide-react";
 import { addExercise, type AddExerciseState } from "./actions";
 
 const initialState: AddExerciseState = null;
@@ -9,7 +10,7 @@ export function AddExerciseForm() {
   const [open, setOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Wrap the server action so we can reset/close the form on success —
+  // Wrap the server action so we can reset and close the dialog on success —
   // addExercise itself just returns null when there's nothing to report.
   const [state, formAction, pending] = useActionState(
     async (prevState: AddExerciseState, formData: FormData) => {
@@ -23,83 +24,121 @@ export function AddExerciseForm() {
     initialState
   );
 
-  if (!open) {
-    return (
+  // Escape closes the dialog, like any other modal on the web.
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  return (
+    <>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="self-start rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-100"
+        className="btn btn-secondary"
       >
-        + Add custom exercise
+        <Plus size={16} aria-hidden="true" />
+        Add exercise
       </button>
-    );
-  }
 
-  return (
-    <form
-      ref={formRef}
-      action={formAction}
-      className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-4 sm:flex-row sm:items-end sm:flex-wrap"
-    >
-      <div className="flex-1 min-w-[10rem]">
-        <label
-          htmlFor="name"
-          className="block text-xs font-medium text-zinc-700"
+      {open && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-exercise-title"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/30 p-4 sm:items-center"
+          onClick={(e) => {
+            // Only a click on the backdrop itself closes — not one that
+            // bubbled up from inside the panel.
+            if (e.target === e.currentTarget) setOpen(false);
+          }}
         >
-          Name
-        </label>
-        <input
-          id="name"
-          name="name"
-          required
-          className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-        />
-      </div>
-      <div className="flex-1 min-w-[10rem]">
-        <label
-          htmlFor="muscle_group"
-          className="block text-xs font-medium text-zinc-700"
-        >
-          Muscle group
-        </label>
-        <input
-          id="muscle_group"
-          name="muscle_group"
-          className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-        />
-      </div>
-      <div className="flex-1 min-w-[10rem]">
-        <label
-          htmlFor="equipment"
-          className="block text-xs font-medium text-zinc-700"
-        >
-          Equipment
-        </label>
-        <input
-          id="equipment"
-          name="equipment"
-          className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-        />
-      </div>
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {pending ? "Adding…" : "Add"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="rounded-md px-3 py-2 text-sm text-zinc-500 hover:text-zinc-900"
-        >
-          Cancel
-        </button>
-      </div>
-      {state?.error && (
-        <p className="w-full text-sm text-red-600">{state.error}</p>
+          <div className="card w-full max-w-md p-5 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2
+                id="add-exercise-title"
+                className="text-base font-semibold tracking-tight"
+              >
+                Add custom exercise
+              </h2>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close"
+                className="btn btn-ghost h-8 w-8 px-0"
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
+
+            <form ref={formRef} action={formAction} className="flex flex-col gap-3">
+              <div>
+                <label htmlFor="name" className="field-label">
+                  Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  required
+                  autoFocus
+                  placeholder="e.g. Cable Crossover"
+                  className="field-input"
+                />
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="muscle_group" className="field-label">
+                    Muscle group
+                  </label>
+                  <input
+                    id="muscle_group"
+                    name="muscle_group"
+                    placeholder="Chest"
+                    className="field-input"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="equipment" className="field-label">
+                    Equipment
+                  </label>
+                  <input
+                    id="equipment"
+                    name="equipment"
+                    placeholder="Cable"
+                    className="field-input"
+                  />
+                </div>
+              </div>
+
+              {state?.error && (
+                <p className="text-sm text-danger">{state.error}</p>
+              )}
+
+              <div className="mt-1 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="btn btn-ghost"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={pending}
+                  className="btn btn-primary"
+                >
+                  {pending ? "Adding…" : "Add exercise"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
-    </form>
+    </>
   );
 }

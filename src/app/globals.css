@@ -1,24 +1,84 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------------------
+   Design tokens
+   ---------------------------------------------------------------------------
+   One neutral ramp plus a single near-black accent — deliberately minimal.
+
+   The app is light-only on purpose, and `color-scheme: light` below says so
+   explicitly. The default template shipped a `prefers-color-scheme: dark`
+   block that flipped the text colour to near-white while the layout kept a
+   light background — that's what made text unreadable on machines set to
+   dark mode. Declaring one theme (and telling the browser about it, so it
+   renders native inputs/scrollbars to match) removes that whole class of bug.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-canvas: #f4f4f5; /* page background */
+  --color-surface: #ffffff; /* cards, header, list rows */
+  --color-line: #e4e4e7; /* hairline dividers */
+  --color-line-strong: #d4d4d8; /* input borders */
+  --color-ink: #18181b; /* primary text, primary buttons */
+  --color-ink-muted: #52525b; /* secondary text — 7.6:1 on white */
+  --color-ink-subtle: #71717a; /* labels + meta — 4.9:1 on white */
+  --color-danger: #b91c1c;
+  --color-success: #15803d;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
+@layer base {
+  html {
+    /* Keep native controls (inputs, selects, scrollbars) light so they can't
+       fight the palette above. */
+    color-scheme: light;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* One focus style for the whole app, instead of per-element rings. */
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Surfaces -------------------------------------------------------------- */
+  .card {
+    @apply rounded-xl border border-line bg-surface;
+  }
+
+  /* Buttons --------------------------------------------------------------- */
+  /* Usage: class="btn btn-primary" — the base sets shape/size, the modifier
+     sets colour, so they compose without duplicating the geometry. */
+  .btn {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4
+           text-sm font-medium whitespace-nowrap transition-colors
+           disabled:pointer-events-none disabled:opacity-40;
+  }
+
+  .btn-primary {
+    @apply bg-ink text-white hover:bg-ink/85;
+  }
+
+  .btn-secondary {
+    @apply border border-line-strong bg-surface text-ink hover:bg-canvas;
+  }
+
+  .btn-ghost {
+    @apply text-ink-muted hover:bg-canvas hover:text-ink;
+  }
+
+  /* Forms ----------------------------------------------------------------- */
+  .field-label {
+    @apply mb-1.5 block text-xs font-medium text-ink-muted;
+  }
+
+  .field-input {
+    @apply h-10 w-full rounded-lg border border-line-strong bg-surface px-3
+           text-sm text-ink transition-colors
+           placeholder:text-ink-subtle hover:border-ink/25;
+  }
 }

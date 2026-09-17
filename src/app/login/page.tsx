@@ -25,72 +25,84 @@ export default function LoginPage() {
   const pending = isLogin ? loginPending : signupPending;
 
   return (
-    <div className="mx-auto max-w-sm">
-      <h1 className="text-xl font-semibold">
-        {isLogin ? "Log in" : "Create an account"}
-      </h1>
-
-      <form action={formAction} className="mt-6 flex flex-col gap-4">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-zinc-700"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-          />
+    <div className="flex h-full items-center justify-center">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 text-center">
+          <h1 className="text-xl font-semibold tracking-tight">
+            {isLogin ? "Welcome back" : "Create your account"}
+          </h1>
+          <p className="mt-1.5 text-sm text-ink-muted">
+            {isLogin
+              ? "Log in to track your workouts."
+              : "Start tracking your workouts in a minute."}
+          </p>
         </div>
 
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-zinc-700"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            minLength={6}
-            autoComplete={isLogin ? "current-password" : "new-password"}
-            className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-          />
+        <div className="card p-5">
+          <form action={formAction} className="flex flex-col gap-4">
+            <div>
+              <label htmlFor="email" className="field-label">
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="you@example.com"
+                className="field-input"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="field-label">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minLength={6}
+                autoComplete={isLogin ? "current-password" : "new-password"}
+                placeholder={isLogin ? "••••••••" : "At least 6 characters"}
+                className="field-input"
+              />
+            </div>
+
+            {state && "error" in state && (
+              <p className="rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-sm text-danger">
+                {state.error}
+              </p>
+            )}
+            {state && "message" in state && (
+              <p className="rounded-lg border border-success/20 bg-success/5 px-3 py-2 text-sm text-success">
+                {state.message}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={pending}
+              className="btn btn-primary w-full"
+            >
+              {pending ? "Please wait…" : isLogin ? "Log in" : "Sign up"}
+            </button>
+          </form>
         </div>
 
-        {state && "error" in state && (
-          <p className="text-sm text-red-600">{state.error}</p>
-        )}
-        {state && "message" in state && (
-          <p className="text-sm text-green-700">{state.message}</p>
-        )}
-
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50"
-        >
-          {pending ? "Please wait…" : isLogin ? "Log in" : "Sign up"}
-        </button>
-      </form>
-
-      <button
-        type="button"
-        onClick={() => setMode(isLogin ? "signup" : "login")}
-        className="mt-4 text-sm text-zinc-600 underline underline-offset-2 hover:text-zinc-900"
-      >
-        {isLogin
-          ? "Need an account? Sign up"
-          : "Already have an account? Log in"}
-      </button>
+        <p className="mt-5 text-center text-sm text-ink-muted">
+          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          <button
+            type="button"
+            onClick={() => setMode(isLogin ? "signup" : "login")}
+            className="font-medium text-ink underline underline-offset-4 hover:no-underline"
+          >
+            {isLogin ? "Sign up" : "Log in"}
+          </button>
+        </p>
+      </div>
     </div>
   );
 }

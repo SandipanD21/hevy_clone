@@ -1,53 +1,44 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Suspense } from "react";
-import { UserNav } from "@/components/UserNav";
+import { Geist } from "next/font/google";
+import { MainNav } from "@/components/MainNav";
+import { SiteHeader } from "@/components/SiteHeader";
+import { getCurrentUser } from "@/lib/supabase/auth";
 import "./globals.css";
+
+const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Hevy Clone",
-  description: "Personal workout tracker — routines, logging, and progress over time.",
+  description:
+    "Personal workout tracker — routines, logging, and progress over time.",
 };
 
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/exercises", label: "Exercises" },
-  { href: "/routines", label: "Routines" },
-  { href: "/workout", label: "Workout" },
-  { href: "/history", label: "History" },
-];
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const user = await getCurrentUser();
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900">
-        <header className="border-b border-zinc-200 bg-white">
-          <nav className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-6">
-              <span className="font-semibold">Hevy Clone</span>
-              <div className="flex gap-4 text-sm text-zinc-600">
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="hover:text-zinc-900"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-            {/* Suspense keeps the auth cookie read from blocking the rest
-                of the header — see the Auth and Streaming note in the
-                Next.js authentication guide. */}
-            <Suspense fallback={null}>
-              <UserNav />
-            </Suspense>
-          </nav>
-        </header>
-        <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
-          {children}
+    <html lang="en" className={geist.className}>
+      {/*
+        The shell is exactly one viewport tall (h-dvh) and doesn't scroll
+        itself. Scrolling happens *inside* <main>, or inside a panel on a page
+        that wants it (see the exercise list). That's what keeps the header
+        and mobile tab bar pinned in place instead of scrolling away.
+      */}
+      <body className="flex h-dvh flex-col overflow-hidden">
+        <SiteHeader />
+
+        <main className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto h-full w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+            {children}
+          </div>
         </main>
+
+        {/* Bottom tab bar on phones — the app's main nav at the gym. */}
+        {user && (
+          <div className="shrink-0 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] sm:hidden">
+            <MainNav variant="tabs" />
+          </div>
+        )}
       </body>
     </html>
   );
